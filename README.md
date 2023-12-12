@@ -34,20 +34,20 @@ README с анализом причины неработоспособности
 
 ```bash
     selinux: Job for nginx.service failed because the control process exited with error code. See "systemctl status nginx.service" and "journalctl -xe" for details.
-    selinux: ● nginx.service - The nginx HTTP and reverse proxy server
-    selinux:    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
-    selinux:    Active: failed (Result: exit-code) since Wed 2023-12-06 20:47:51 UTC; 11ms ago
-    selinux:   Process: 2882 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=1/FAILURE)
-    selinux:   Process: 2881 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
-    selinux: 
-    selinux: Dec 06 20:47:51 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
-    selinux: Dec 06 20:47:51 selinux nginx[2882]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-    selinux: Dec 06 20:47:51 selinux nginx[2882]: nginx: [emerg] bind() to [::]:4881 failed (13: Permission denied)
-    selinux: Dec 06 20:47:51 selinux nginx[2882]: nginx: configuration file /etc/nginx/nginx.conf test failed
-    selinux: Dec 06 20:47:51 selinux systemd[1]: nginx.service: control process exited, code=exited status=1
-    selinux: Dec 06 20:47:51 selinux systemd[1]: Failed to start The nginx HTTP and reverse proxy server.
-    selinux: Dec 06 20:47:51 selinux systemd[1]: Unit nginx.service entered failed state.
-    selinux: Dec 06 20:47:51 selinux systemd[1]: nginx.service failed.
+ ● nginx.service - The nginx HTTP and reverse proxy server
+   Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
+   Active: failed (Result: exit-code) since Tue 2023-12-12 03:53:35 UTC; 3s ago
+  Process: 1922 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=1/FAILURE)
+  Process: 1920 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+Dec 12 03:53:35 selinux systemd[1]: Starting The nginx HTTP and reverse pro.....
+Dec 12 03:53:35 selinux nginx[1922]: nginx: the configuration file /etc/ngi...ok
+Dec 12 03:53:35 selinux nginx[1922]: nginx: [emerg] bind() to 0.0.0.0:4881 ...d)
+Dec 12 03:53:35 selinux nginx[1922]: nginx: configuration file /etc/nginx/n...ed
+Dec 12 03:53:35 selinux systemd[1]: nginx.service: control process exited, ...=1
+Dec 12 03:53:35 selinux systemd[1]: Failed to start The nginx HTTP and reve...r.
+Dec 12 03:53:35 selinux systemd[1]: Unit nginx.service entered failed state.
+Dec 12 03:53:35 selinux systemd[1]: nginx.service failed.
+Hint: Some lines were ellipsized, use -l to show in full.
 ```
 
 > Данная ошибка появляется из-за того, что SELinux блокирует работу nginx на нестандартном порту.
@@ -92,25 +92,23 @@ Enforcing
 - Находим в логах (/var/log/audit/audit.log) информацию о блокировании порта
 
 ```bash
-cat /var/log/audit/audit.log | grep 4881
+[root@selinux ~]# cat /var/log/audit/audit.log | grep 4881
 
-type=AVC msg=audit(1642625271.254:819): avc:  denied  { name_bind } for  pid=2882 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+type=AVC msg=audit(1702346244.835:827): avc:  denied  { name_bind } for  pid=2836 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
 ```
 
 - Копируем время, в которое был записан этот лог, и, с помощью утилиты audit2why смотрим информации о запрете
 
 ```bash
-grep 642625271.254:819 /var/log/audit/audit.log | audit2why
-
-type=AVC msg=audit(1642625271.254:819): avc:  denied  { name_bind } for  pid=2882 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
-
-        Was caused by:
-        The boolean nis_enabled was set incorrectly. 
-        Description:
-        Allow nis to enabled
-
-        Allow access by executing:
-        # setsebool -P nis_enabled 1
+[root@selinux ~]# grep 1702346244.835:827 /var/log/audit/audit.log | audit2why
+type=AVC msg=audit(1702346244.835:827): avc:  denied  { name_bind } for  pid=2836 comm="nginx" src=4881 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+	Was caused by:
+	The boolean nis_enabled was set incorrectly. 
+	Description:
+	Allow nis to enabled
+	Allow access by executing:
+	# setsebool -P nis_enabled 1
 ```
 
 > Утилита audit2why покажет почему трафик блокируется. Исходя из вывода утилиты, мы видим, что нам нужно поменять параметр nis_enabled
@@ -124,19 +122,19 @@ systemctl status nginx
 
 ● nginx.service - The nginx HTTP and reverse proxy server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
-   Active: active (running) since Wed 2023-12-06 20:59:59 UTC; 10s ago
-  Process: 3183 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
-  Process: 3180 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
-  Process: 3179 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
- Main PID: 3185 (nginx)
+   Active: active (running) since Tue 2023-12-12 03:58:57 UTC; 26s ago
+  Process: 1948 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 1946 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 1945 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 1950 (nginx)
    CGroup: /system.slice/nginx.service
-           ├─3185 nginx: master process /usr/sbin/nginx
-           └─3187 nginx: worker process
-
-Dec 06 20:59:59 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
-Dec 06 20:59:59 selinux nginx[3180]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-Dec 06 20:59:59 selinux nginx[3180]: nginx: configuration file /etc/nginx/nginx.conf test is successful
-Dec 06 20:59:59 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+           ├─1950 nginx: master process /usr/sbin/nginx
+           └─1952 nginx: worker process
+Dec 12 03:58:57 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Dec 12 03:58:57 selinux nginx[1946]: nginx: the configuration file /etc/nginx/nginx.conf sy... ok
+Dec 12 03:58:57 selinux nginx[1946]: nginx: configuration file /etc/nginx/nginx.conf test i...ful
+Dec 12 03:58:57 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+Hint: Some lines were ellipsized, use -l to show in full.
 ```
 
 - Также можно проверить работу nginx из браузера. Заходим в любой браузер на хосте и переходим по адресу <http://127.0.0.1:4881>
@@ -230,15 +228,15 @@ Job for nginx.service failed because the control process exited with error code.
   Process: 3311 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
  Main PID: 3285 (code=exited, status=0/SUCCESS)
 
-Dec 19 21:13:14 selinux systemd[1]: Stopped The nginx HTTP and reverse proxy server.
-Dec 19 21:13:14 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
-Jan 19 21:13:14 selinux nginx[3313]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-Jan 19 21:13:14 selinux nginx[3313]: nginx: [emerg] bind() to 0.0.0.0:4881 failed (13: Permission denied)
-Jan 19 21:13:14 selinux nginx[3313]: nginx: configuration file /etc/nginx/nginx.conf test failed
-Jan 19 21:13:14 selinux systemd[1]: nginx.service: control process exited, code=exited status=1
-Jan 19 21:13:14 selinux systemd[1]: Failed to start The nginx HTTP and reverse proxy server.
-Jan 19 21:13:14 selinux systemd[1]: Unit nginx.service entered failed state.
-Jan 19 21:13:14 selinux systemd[1]: nginx.service failed.
+Dec 06 21:13:14 selinux systemd[1]: Stopped The nginx HTTP and reverse proxy server.
+Dec 06 21:13:14 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Dec 06 21:13:14 selinux nginx[3313]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Dec 06 21:13:14 selinux nginx[3313]: nginx: [emerg] bind() to 0.0.0.0:4881 failed (13: Permission denied)
+Dec 06 21:13:14 selinux nginx[3313]: nginx: configuration file /etc/nginx/nginx.conf test failed
+Dec 06 21:13:14 selinux systemd[1]: nginx.service: control process exited, code=exited status=1
+Dec 06 21:13:14 selinux systemd[1]: Failed to start The nginx HTTP and reverse proxy server.
+Dec 06 21:13:14 selinux systemd[1]: Unit nginx.service entered failed state.
+Dec 19 21:13:14 selinux systemd[1]: nginx.service failed.
 ```
 
 ### Разрешим в SELinux работу nginx на порту TCP 4881 c помощью формирования и установки модуля SELinux
