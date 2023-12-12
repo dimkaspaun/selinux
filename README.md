@@ -188,22 +188,21 @@ pegasus_https_port_t           tcp      5989
 systemctl restart nginx
 
 systemctl status nginx
-● nginx.service - The nginx HTTP and reverse proxy server
+ nginx.service - The nginx HTTP and reverse proxy server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
-   Active: active (running) since Wed 2023-12-06 21:09:51 UTC; 15s ago
-  Process: 3283 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
-  Process: 3281 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
-  Process: 3280 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
- Main PID: 3285 (nginx)
+   Active: active (running) since Tue 2023-12-12 04:02:12 UTC; 6s ago
+  Process: 1991 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 1988 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 1987 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 1993 (nginx)
    CGroup: /system.slice/nginx.service
-           ├─3285 nginx: master process /usr/sbin/nginx
-           └─3287 nginx: worker process
-
-Dec 06 21:09:51 selinux systemd[1]: Stopped The nginx HTTP and reverse proxy server.
-Dec 06 21:09:51 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
-Dec 06 21:09:51 selinux nginx[3281]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-Dec 06 21:09:51 selinux nginx[3281]: nginx: configuration file /etc/nginx/nginx.conf test is successful
-Dec 06 21:09:51 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+           ├─1993 nginx: master process /usr/sbin/nginx
+           └─1994 nginx: worker process
+Dec 12 04:02:12 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Dec 12 04:02:12 selinux nginx[1988]: nginx: the configuration file /etc/nginx/nginx.conf sy... ok
+Dec 12 04:02:12 selinux nginx[1988]: nginx: configuration file /etc/nginx/nginx.conf test i...ful
+Dec 12 04:02:12 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+Hint: Some lines were ellipsized, use -l to show in full.
 ```
 
 - Также можно проверить работу nginx из браузера. Заходим в любой браузер на хосте и переходим по адресу <http://127.0.0.1:4881>
@@ -222,21 +221,20 @@ Job for nginx.service failed because the control process exited with error code.
 
 ● nginx.service - The nginx HTTP and reverse proxy server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
-   Active: failed (Result: exit-code) since Wed 2023-12-06 21:13:14 UTC; 26s ago
-  Process: 3283 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
-  Process: 3313 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=1/FAILURE)
-  Process: 3311 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
- Main PID: 3285 (code=exited, status=0/SUCCESS)
-
-Dec 06 21:13:14 selinux systemd[1]: Stopped The nginx HTTP and reverse proxy server.
-Dec 06 21:13:14 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
-Dec 06 21:13:14 selinux nginx[3313]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-Dec 06 21:13:14 selinux nginx[3313]: nginx: [emerg] bind() to 0.0.0.0:4881 failed (13: Permission denied)
-Dec 06 21:13:14 selinux nginx[3313]: nginx: configuration file /etc/nginx/nginx.conf test failed
-Dec 06 21:13:14 selinux systemd[1]: nginx.service: control process exited, code=exited status=1
-Dec 06 21:13:14 selinux systemd[1]: Failed to start The nginx HTTP and reverse proxy server.
-Dec 06 21:13:14 selinux systemd[1]: Unit nginx.service entered failed state.
-Dec 19 21:13:14 selinux systemd[1]: nginx.service failed.
+   Active: failed (Result: exit-code) since Tue 2023-12-12 04:03:17 UTC; 9s ago
+  Process: 1991 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 2012 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=1/FAILURE)
+  Process: 2011 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 1993 (code=exited, status=0/SUCCESS)
+Dec 12 04:03:17 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Dec 12 04:03:17 selinux nginx[2012]: nginx: the configuration file /etc/nginx/nginx.conf sy... ok
+Dec 12 04:03:17 selinux nginx[2012]: nginx: [emerg] bind() to 0.0.0.0:4881 failed (13: Perm...ed)
+Dec 12 04:03:17 selinux nginx[2012]: nginx: configuration file /etc/nginx/nginx.conf test failed
+Dec 12 04:03:17 selinux systemd[1]: nginx.service: control process exited, code=exited status=1
+Dec 12 04:03:17 selinux systemd[1]: Failed to start The nginx HTTP and reverse proxy server.
+Dec 12 04:03:17 selinux systemd[1]: Unit nginx.service entered failed state.
+Dec 12 04:03:17 selinux systemd[1]: nginx.service failed.
+Hint: Some lines were ellipsized, use -l to show in full.
 ```
 
 ### Разрешим в SELinux работу nginx на порту TCP 4881 c помощью формирования и установки модуля SELinux
@@ -253,8 +251,8 @@ Job for nginx.service failed because the control process exited with error code.
 ```bash
 grep nginx /var/log/audit/audit.log
 
-type=SYSCALL msg=audit(1642626927.353:905): arch=c000003e syscall=49 success=no exit=-13 a0=6 a1=55c40c14b858 a2=10 a3=7ffe5e98aef0 items=0 ppid=1 pid=3325 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="nginx" exe="/usr/sbin/nginx" subj=system_u:system_r:httpd_t:s0 key=(null)
-type=SERVICE_START msg=audit(1642626927.361:906): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=nginx comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=failed'
+type=SYSCALL msg=audit(1702346244.835:827): arch=c000003e syscall=49 success=no exit=-13 a0=6 a1=55ba2948c8b8 a2=10 a3=7fffb551e530 items=0 ppid=1 pid=2836 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="nginx" exe="/usr/sbin/nginx" subj=system_u:system_r:httpd_t:s0 key=(null)
+type=SERVICE_START msg=audit(1702346244.835:828): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0 msg='unit=nginx comm="systemd" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=failed'
 ```
 
 - Воспользуемся утилитой audit2allow для того, чтобы на основе логов SELinux сделать модуль, разрешающий работу nginx на нестандартном
@@ -282,19 +280,18 @@ systemctl start nginx
 systemctl status nginx
 ● nginx.service - The nginx HTTP and reverse proxy server
    Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; vendor preset: disabled)
-   Active: active (running) since Wed 2022-01-19 21:19:20 UTC; 5s ago
-  Process: 3353 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
-  Process: 3351 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
-  Process: 3350 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
- Main PID: 3355 (nginx)
+   Active: active (running) since Tue 2023-12-12 04:11:11 UTC; 6s ago
+  Process: 5038 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+  Process: 5035 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+  Process: 5034 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+ Main PID: 5039 (nginx)
    CGroup: /system.slice/nginx.service
-           ├─3355 nginx: master process /usr/sbin/nginx
-           └─3356 nginx: worker process
-
-Jan 19 21:19:20 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
-Jan 19 21:19:20 selinux nginx[3351]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-Jan 19 21:19:20 selinux nginx[3351]: nginx: configuration file /etc/nginx/nginx.conf test is successful
-Jan 19 21:19:20 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
+           ├─5039 nginx: master process /usr/sbin/nginx
+           └─5042 nginx: worker process
+Dec 12 04:11:11 selinux systemd[1]: Starting The nginx HTTP and reverse proxy server...
+Dec 12 04:11:11 selinux nginx[5035]: nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+Dec 12 04:11:11 selinux nginx[5035]: nginx: configuration file /etc/nginx/nginx.conf test is successful
+Dec 12 04:11:11 selinux systemd[1]: Started The nginx HTTP and reverse proxy server.
 ```
 
 > После добавления модуля nginx запустился без ошибок. При использовании модуля изменения сохранятся после перезагрузки.  
