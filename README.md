@@ -312,13 +312,15 @@ libsemanage.semanage_direct_remove_key: Removing last nginx module (no other ngi
 
 ```bash
 git clone https://github.com/mbfx/otus-linux-adm.git
-Клонирование в «otus-linux-adm»…
-remote: Enumerating objects: 542, done.
-remote: Counting objects: 100% (440/440), done.
-remote: Compressing objects: 100% (295/295), done.
-remote: Total 542 (delta 118), reused 381 (delta 69), pack-reused 102
-Получение объектов: 100% (542/542), 1.38 МиБ | 2.94 МиБ/с, готово.
-Определение изменений: 100% (133/133), готово.
+Клонирование в «otus-linux-adm»...
+remote: Enumerating objects: 558, done.
+remote: Counting objects: 100% (456/456), done.
+remote: Compressing objects: 100% (303/303), done.
+remote: Total 558 (delta 125), reused 396 (delta 74), pack-reused 102
+Получение объектов: 100% (558/558), 1.38 МиБ | 2.33 МиБ/с, готово.
+Определение изменений: 100% (140/140), готово.
+
+
 ```
 
 - Перейдём в каталог со стендом: cd otus-linux-adm/selinux_dns_problems
@@ -371,12 +373,18 @@ sudo -i
 
 cat /var/log/audit/audit.log | audit2why
 
-type=AVC msg=audit(1642628500.431:1914): avc:  denied  { create } for  pid=5163 comm="isc-worker0000" name="named.ddns.lab.view1.jnl" scontext=system_u:system_r:named_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
+type=AVC msg=audit(1702356484.738:1892): avc:  denied  { write } for  pid=5162 comm="isc-worker0000" name="named" dev="sda1" ino=67540607 scontext=system_u:system_r:named_t:s0 tcontext=system_u:object_r:named_zone_t:s0 tclass=dir permissive=0
+	Was caused by:
+	The boolean named_write_master_zones was set incorrectly. 
+	Description:
+	Allow named to write master zones
+	Allow access by executing:
+	# setsebool -P named_write_master_zones 1
 
-        Was caused by:
-                Missing type enforcement (TE) allow rule.
-
-                You can use audit2allow to generate a loadable module to allow this access.
+type=AVC msg=audit(1702357386.695:1926): avc:  denied  { create } for  pid=5162 comm="isc-worker0000" name="named.ddns.lab.view1.jnl" scontext=system_u:system_r:named_t:s0 tcontext=system_u:object_r:etc_t:s0 tclass=file permissive=0
+	Was caused by:
+		Missing type enforcement (TE) allow rule.
+		You can use audit2allow to generate a loadable module to allow this access.
 ```
 
 > В логах мы видим, что ошибка в контексте безопасности. Вместо типа named_t используется тип etc_t
@@ -436,7 +444,7 @@ dig www.ddns.lab
 ; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.8 <<>> www.ddns.lab
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 12657
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 55799
 ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
 
 ;; OPT PSEUDOSECTION:
@@ -455,7 +463,7 @@ ns01.dns.lab.           3600    IN      A       192.168.50.10
 
 ;; Query time: 3 msec
 ;; SERVER: 192.168.50.10#53(192.168.50.10)
-;; WHEN: Wed Jan 19 21:53:48 UTC 2022
+;; WHEN: Tue Dec 12 05:15:13 UTC 2023
 ;; MSG SIZE  rcvd: 96
 ```
 
