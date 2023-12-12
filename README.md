@@ -444,7 +444,7 @@ dig www.ddns.lab
 ; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.8 <<>> www.ddns.lab
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 55799
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 43348
 ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
 
 ;; OPT PSEUDOSECTION:
@@ -461,41 +461,36 @@ ddns.lab.               3600    IN      NS      ns01.dns.lab.
 ;; ADDITIONAL SECTION:
 ns01.dns.lab.           3600    IN      A       192.168.50.10
 
-;; Query time: 3 msec
+;; Query time: 131 msec
 ;; SERVER: 192.168.50.10#53(192.168.50.10)
 ;; WHEN: Tue Dec 12 05:15:13 UTC 2023
-;; MSG SIZE  rcvd: 96
+;; MSG SIZE  rcvd: 116
 ```
 
 - Видим, что изменения применились. Попробуем перезагрузить хосты и ещё раз сделать запрос с помощью dig
 
 ```bash
-dig @192.168.50.10 www.ddns.lab
-
-; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.8 <<>> @192.168.50.10 www.ddns.lab
+[root@client ~]# dig @192.168.50.10 www.ddns.lab
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.15 <<>> @192.168.50.10 www.ddns.lab
 ; (1 server found)
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 30151
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 38157
 ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
 
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 4096
 ;; QUESTION SECTION:
-;www.ddns.lab.                  IN      A
-
+;www.ddns.lab.			IN	A
 ;; ANSWER SECTION:
-www.ddns.lab.           60      IN      A       192.168.50.15
-
+www.ddns.lab.		60	IN	A	192.168.50.15
 ;; AUTHORITY SECTION:
-ddns.lab.               3600    IN      NS      ns01.dns.lab.
-
+ddns.lab.		3600	IN	NS	ns01.dns.lab.
 ;; ADDITIONAL SECTION:
-ns01.dns.lab.           3600    IN      A       192.168.50.10
-
-;; Query time: 0 msec
+ns01.dns.lab.		3600	IN	A	192.168.50.10
+;; Query time: 82 msec
 ;; SERVER: 192.168.50.10#53(192.168.50.10)
-;; WHEN: Wed Jan 19 21:54:43 UTC 2022
+;; WHEN: Tue Dec 12 06:07:53 UTC 2023
 ;; MSG SIZE  rcvd: 96
 ```
 
@@ -506,9 +501,10 @@ ns01.dns.lab.           3600    IN      A       192.168.50.10
 ```bash
 restorecon -v -R /etc/named
 
+[root@ns01 ~]# restorecon -v -R /etc/named
 restorecon reset /etc/named context system_u:object_r:named_zone_t:s0->system_u:object_r:etc_t:s0
-restorecon reset /etc/named/named.dns.lab context system_u:object_r:named_zone_t:s0->system_u:object_r:etc_t:s0
 restorecon reset /etc/named/named.dns.lab.view1 context system_u:object_r:named_zone_t:s0->system_u:object_r:etc_t:s0
+restorecon reset /etc/named/named.dns.lab context system_u:object_r:named_zone_t:s0->system_u:object_r:etc_t:s0
 restorecon reset /etc/named/dynamic context unconfined_u:object_r:named_zone_t:s0->unconfined_u:object_r:etc_t:s0
 restorecon reset /etc/named/dynamic/named.ddns.lab context system_u:object_r:named_zone_t:s0->system_u:object_r:etc_t:s0
 restorecon reset /etc/named/dynamic/named.ddns.lab.view1 context system_u:object_r:named_zone_t:s0->system_u:object_r:etc_t:s0
