@@ -50,6 +50,8 @@ Dec 12 03:53:35 selinux systemd[1]: nginx.service failed.
 Hint: Some lines were ellipsized, use -l to show in full.
 ```
 
+![2023-12-12_08-57-38](https://github.com/dimkaspaun/selinux/assets/78789795/4f7c149c-6064-48a3-a5d3-70dd5d3496a9)
+
 > Данная ошибка появляется из-за того, что SELinux блокирует работу nginx на нестандартном порту.
 
 - Заходим на сервер: vagrant ssh
@@ -138,6 +140,7 @@ Hint: Some lines were ellipsized, use -l to show in full.
 ```
 
 - Также можно проверить работу nginx из браузера. Заходим в любой браузер на хосте и переходим по адресу <http://127.0.0.1:4881>
+![2023-12-12_09-10-58](https://github.com/dimkaspaun/selinux/assets/78789795/6ad74ee3-7a3f-4bd0-bb15-a0002b6b4d71)
 
 - Проверить статус параметра можно с помощью команды
 
@@ -206,6 +209,8 @@ Hint: Some lines were ellipsized, use -l to show in full.
 ```
 
 - Также можно проверить работу nginx из браузера. Заходим в любой браузер на хосте и переходим по адресу <http://127.0.0.1:4881>
+
+  ![2023-12-12_09-10-58](https://github.com/dimkaspaun/selinux/assets/78789795/6ad74ee3-7a3f-4bd0-bb15-a0002b6b4d71)
 
 - Удалить нестандартный порт из имеющегося типа можно с помощью команды
 
@@ -296,6 +301,8 @@ Dec 12 04:11:11 selinux systemd[1]: Started The nginx HTTP and reverse proxy ser
 
 > После добавления модуля nginx запустился без ошибок. При использовании модуля изменения сохранятся после перезагрузки.  
 > Просмотр всех установленных модулей: semodule -l
+
+![2023-12-12_09-10-58](https://github.com/dimkaspaun/selinux/assets/78789795/6ad74ee3-7a3f-4bd0-bb15-a0002b6b4d71)
 
 Для удаления модуля воспользуемся командой
 
